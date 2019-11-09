@@ -11,6 +11,10 @@ struct TResult {
 
     size_t Size();
 
+    size_t Checked();
+
+    size_t TotalFiles();
+
     void Append(QString &name, size_t numLine, size_t numIndex,
                 QString const phrase = "");
 
@@ -19,7 +23,9 @@ struct TResult {
     void Clear();
 
     bool Complete;
-    size_t Num;
+    size_t Items;
+    size_t Progress;
+    size_t FilesNumber;
 
     std::vector<QString> Filename;
     std::vector<QString> Near;

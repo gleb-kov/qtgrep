@@ -21,6 +21,17 @@ BgThread::BgThread()
             CurResult.Complete = false;
             NewTask = false;
 
+            if (QDir(opt.Path).exists()) {
+                QDirIterator it(opt.Path, QDir::Files,
+                                QDirIterator::Subdirectories);
+                while (it.hasNext()) {
+                    it.next();
+                    CurResult.FilesNumber++;
+                }
+            } else if (QFile(opt.Path).exists()) {
+                CurResult.FilesNumber = 1;
+            }
+
             QueueCallback();
             lg.unlock();
             if (QDir(opt.Path).exists()) {
@@ -36,7 +47,7 @@ BgThread::BgThread()
 
             CurResult.Complete = true;
             QueueCallback();
-            Cancel.store(false);
+            // Cancel.store(false);
         }
     })
 {}
@@ -57,7 +68,7 @@ NGrepInfo::TResult BgThread::GetResult() const {
 }
 
 void BgThread::Stop() {
-    std::unique_lock<std::mutex> lg(Mutex); // unique_lock?
+    std::unique_lock<std::mutex> lg(Mutex);
     Cancel.store(true);
 }
 
@@ -112,6 +123,11 @@ void BgThread::FindWork(QString filePath, NGrepInfo::TOptions copyOptions) {
             }
             lineNumber++;
         }
+    }
+
+    {
+        std::unique_lock<std::mutex> lg(Mutex);
+        CurResult.Progress++;
     }
 }
 

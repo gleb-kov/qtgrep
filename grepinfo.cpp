@@ -2,16 +2,26 @@
 
 NGrepInfo::TResult::TResult()
     : Complete(true)
-    , Num(0)
+    , Items(0)
+    , Progress(0)
+    , FilesNumber(0)
 {}
 
 size_t NGrepInfo::TResult::Size() {
-    return Num;
+    return Items;
+}
+
+size_t NGrepInfo::TResult::Checked() {
+    return Progress;
+}
+
+size_t NGrepInfo::TResult::TotalFiles() {
+    return FilesNumber;
 }
 
 void NGrepInfo::TResult::Append(QString &name, size_t numLine, size_t numIndex,
                                 QString const phrase) {
-    Num++;
+    Items++;
     Filename.push_back(name);
     Lines.push_back(numLine);
     Index.push_back(numIndex);
@@ -19,12 +29,14 @@ void NGrepInfo::TResult::Append(QString &name, size_t numLine, size_t numIndex,
 }
 
 void NGrepInfo::TResult::Increase() {
-    Num++;
+    Items++;
 }
 
 void NGrepInfo::TResult::Clear() {
     Complete = true;
-    Num = 0;
+    Items = 0;
+    Progress = 0;
+    FilesNumber = 0;
     Filename.clear();
     Lines.clear();
     Index.clear();

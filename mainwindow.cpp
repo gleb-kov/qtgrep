@@ -10,7 +10,6 @@
  *
  * put in tresult is it near-mod
  * bold name of file on near-mod
- * choose directory or file
  */
 
 MainWindow::MainWindow(QWidget *parent)
@@ -20,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->pushButton->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
+    ui->progressBar->setVisible(false);
 
     std::function<void()> onLinesButtonEnabler = [this]() {
         if (ui->lineEdit->text().isEmpty() ||
@@ -46,6 +46,10 @@ MainWindow::MainWindow(QWidget *parent)
         }
     };
 
+    std::function<void(size_t, size_t)> updateProgress = [this](size_t val, size_t total) {
+        ui->progressBar->setValue((total > 0 ? val * 100 / total : 100));
+    };
+
     connect(ui->lineEdit, &QLineEdit::textChanged, this, onLinesButtonEnabler);
     connect(ui->lineEdit_2, &QLineEdit::textChanged, this, onLinesButtonEnabler);
 
@@ -70,6 +74,9 @@ MainWindow::MainWindow(QWidget *parent)
         opt.One = ui->checkBox_3->isChecked();
 
         bg_thread.SetTask(opt);
+
+        ui->progressBar->setValue(0);
+        ui->progressBar->setVisible(true);
         ui->pushButton->setEnabled(false);
         ui->pushButton_2->setEnabled(true);
     });
@@ -83,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(&bg_thread, &BgThread::ResultChanged, this,
-            [this, onFinishButtonEnabler]
+            [this, onFinishButtonEnabler, updateProgress]
     {
         NGrepInfo::TResult res = bg_thread.GetResult();
 
@@ -106,8 +113,8 @@ MainWindow::MainWindow(QWidget *parent)
             text += "...\n";
         }
 
-        text += QString("%1 results.").arg(res.Num);
-
+        text += QString("%1 results.").arg(res.Size());
+        updateProgress(res.Checked(), res.TotalFiles());
         ui->textBrowser->setPlainText(text);
 
         QScrollBar *sb = ui->textBrowser->verticalScrollBar();
