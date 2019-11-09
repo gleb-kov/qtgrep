@@ -7,8 +7,8 @@ NGrepInfo::TResult::TResult()
     , FilesNumber(0)
 {}
 
-size_t NGrepInfo::TResult::Size() {
-    return Items;
+size_t NGrepInfo::TResult::Shown() {
+    return Filename.size();
 }
 
 size_t NGrepInfo::TResult::Checked() {
@@ -17,6 +17,10 @@ size_t NGrepInfo::TResult::Checked() {
 
 size_t NGrepInfo::TResult::TotalFiles() {
     return FilesNumber;
+}
+
+size_t NGrepInfo::TResult::TotalItems() {
+    return Items;
 }
 
 void NGrepInfo::TResult::Append(QString &name, size_t numLine, size_t numIndex,

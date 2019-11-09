@@ -9,11 +9,13 @@ namespace NGrepInfo {
 struct TResult {
     TResult();
 
-    size_t Size();
+    size_t Shown();
 
     size_t Checked();
 
     size_t TotalFiles();
+
+    size_t TotalItems();
 
     void Append(QString &name, size_t numLine, size_t numIndex,
                 QString const phrase = "");

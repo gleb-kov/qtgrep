@@ -10,6 +10,8 @@
  *
  * put in tresult is it near-mod
  * bold name of file on near-mod
+ * dont update listwidget every time
+ * layout
  */
 
 MainWindow::MainWindow(QWidget *parent)
@@ -20,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
     ui->progressBar->setVisible(false);
+    ui->label->setVisible(false);
 
     std::function<void()> onLinesButtonEnabler = [this]() {
         if (ui->lineEdit->text().isEmpty() ||
@@ -94,31 +97,26 @@ MainWindow::MainWindow(QWidget *parent)
     {
         NGrepInfo::TResult res = bg_thread.GetResult();
 
-        QString text;
-        for (size_t i = 0; i < res.Size() && i < MAXSHOW; i++) {
-            text += res.Filename[i];
+        ui->listWidget->clear();
+
+        for (size_t i = 0; i < res.Shown(); i++) {
+            QString text;
+            text = res.Filename[i];
             text += QString(":%1").arg(res.Lines[i]);
             text += QString(":%1").arg(res.Index[i]);
-
             if (!res.Near[i].isEmpty()) {
                 text += ':' + CutWidth(res.Near[i], res.Index[i]) + '\n';
-            } else {
-                text += '\n';
             }
+            ui->listWidget->addItem(text);
         }
 
         if (res.Complete) {
             onFinishButtonEnabler();
-        } else {
-            text += "...\n";
         }
 
-        text += QString("%1 results.").arg(res.Size());
         updateProgress(res.Checked(), res.TotalFiles());
-        ui->textBrowser->setPlainText(text);
-
-        QScrollBar *sb = ui->textBrowser->verticalScrollBar();
-        sb->setValue(sb->maximum());
+        ui->label->setVisible(true);
+        ui->label->setText(QString("Results: %1").arg(res.TotalItems()));
     });
 }
 
