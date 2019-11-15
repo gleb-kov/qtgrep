@@ -30,14 +30,22 @@ public:
     ~BgThread();
 
 signals:
+    void ProgressChanged(); // integer percentage changed
+
     void ResultChanged();
 
 private:
     void FindWork(QString filePath, NGrepInfo::TOptions copyOptions);
 
-    void QueueCallback();
+    void SignalProgress();
 
-    void Callback();
+    void SignalResult();
+
+    void QueueSignalProgress();
+
+    void QueueSignalResult();
+
+    void Refresh();
 
 private:
     mutable std::mutex Mutex;
@@ -46,8 +54,11 @@ private:
     NGrepInfo::TResult CurResult;
 
     bool NewTask; // have new grep task
-    bool CallQueue; // result changed
     bool Quit; // delete bgthread
+    bool CallProgress;
+    bool CallResult;
+
+    size_t ProgressModulo;
 
     std::atomic<bool> Cancel; // stop grep task
     std::condition_variable CV;

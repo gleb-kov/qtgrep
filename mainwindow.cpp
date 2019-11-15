@@ -5,8 +5,6 @@
  * TODO:
  * const, &, &&, emplace_back + (always copy tresult in getresult())
  * tests
- *
- * update progressbar even nothing found
  */
 
 MainWindow::MainWindow(QWidget *parent)
@@ -74,12 +72,8 @@ MainWindow::MainWindow(QWidget *parent)
         bg_thread.SetTask(opt);
 
         ui->listWidget->clear();
-
-        ui->progressBar->setValue(0);
         ui->progressBar->setVisible(true);
-
         ui->label->setVisible(true);
-        ui->label->setText("Results: 0");
 
         ui->pushButton->setEnabled(false);
         ui->pushButton_2->setEnabled(true);
@@ -93,8 +87,15 @@ MainWindow::MainWindow(QWidget *parent)
         onFinishButtonEnabler();
     });
 
+    connect(&bg_thread, &BgThread::ProgressChanged, this,
+            [this, updateProgress]
+    {
+        NGrepInfo::TResult res = bg_thread.GetResult();
+        updateProgress(res.Checked(), res.TotalFiles());
+    });
+
     connect(&bg_thread, &BgThread::ResultChanged, this,
-            [this, onFinishButtonEnabler, updateProgress]
+            [this, onFinishButtonEnabler]
     {
         NGrepInfo::TResult res = bg_thread.GetResult();
 
@@ -113,8 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
             onFinishButtonEnabler();
         }
 
-        updateProgress(res.Checked(), res.TotalFiles());
-        ui->label->setText(QString("Results: %1").arg(res.TotalItems()));
+        ui->label->setText(QString("Total: %1").arg(res.TotalItems()));
     });
 }
 

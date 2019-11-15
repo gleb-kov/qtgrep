@@ -2,8 +2,10 @@
 
 BgThread::BgThread()
     : NewTask(false)
-    , CallQueue(false)
     , Quit(false)
+    , CallProgress(false)
+    , CallResult(false)
+    , ProgressModulo(0)
     , Cancel(false)
     , Thread([this] {
         while(true) {
@@ -32,7 +34,7 @@ BgThread::BgThread()
                 CurResult.FilesNumber = 1;
             }
 
-            QueueCallback();
+            Refresh();
             lg.unlock();
 
             if (QDir(opt.Path).exists()) {
@@ -51,7 +53,7 @@ BgThread::BgThread()
             lg.lock();
 
             CurResult.Complete = true;
-            QueueCallback();
+            Refresh();
             Cancel.store(false);
         }
     })
@@ -123,7 +125,7 @@ void BgThread::FindWork(QString filePath, NGrepInfo::TOptions copyOptions) {
                     } else {
                         CurResult.Increase();
                     }
-                    QueueCallback();
+                    QueueSignalResult();
                 }
             }
             lineNumber++;
@@ -133,24 +135,49 @@ void BgThread::FindWork(QString filePath, NGrepInfo::TOptions copyOptions) {
     {
         std::unique_lock<std::mutex> lg(Mutex);
         CurResult.Progress++;
+        ProgressModulo += 100;
+        if (ProgressModulo >= CurResult.FilesNumber) {
+            ProgressModulo %= CurResult.FilesNumber;
+            QueueSignalProgress();
+        }
     }
 }
 
-void BgThread::QueueCallback() {
-    if (CallQueue) {
-        return;
-    }
-
-    CallQueue = true;
-    QMetaObject::invokeMethod(this, &BgThread::Callback,
-                              Qt::QueuedConnection);
-}
-
-void BgThread::Callback() {
+void BgThread::SignalProgress() {
     {
         std::unique_lock<std::mutex> lg(Mutex);
-        CallQueue = false;
+        CallProgress = false;
+    }
+
+    emit ProgressChanged();
+}
+
+void BgThread::SignalResult() {
+    {
+        std::unique_lock<std::mutex> lg(Mutex);
+        CallResult = false;
     }
 
     emit ResultChanged();
+}
+
+void BgThread::QueueSignalProgress() {
+    if (CallProgress) return;
+
+    CallProgress = true;
+    QMetaObject::invokeMethod(this, &BgThread::SignalProgress,
+                              Qt::QueuedConnection);
+}
+
+void BgThread::QueueSignalResult() {
+    if (CallResult) return;
+
+    CallResult = true;
+    QMetaObject::invokeMethod(this, &BgThread::SignalResult,
+                              Qt::QueuedConnection);
+}
+
+void BgThread::Refresh() {
+    QueueSignalProgress();
+    QueueSignalResult();
 }
