@@ -1,12 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-/*
- * TODO:
- * const, &, &&, emplace_back + (always copy tresult in getresult())
- * tests
- */
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -17,7 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->progressBar->setVisible(false);
     ui->label->setVisible(false);
 
-    std::function<void()> onLinesButtonEnabler = [this]() {
+    std::function<void()> onLinesButtonEnabler = [this]()
+    {
         if (ui->lineEdit->text().isEmpty() ||
             ui->lineEdit_2->text().isEmpty())
         {
@@ -32,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
         }
     };
 
-    std::function<void()> onFinishButtonEnabler = [this]() {
+    std::function<void()> onFinishButtonEnabler = [this]()
+    {
         ui->pushButton_2->setEnabled(false);
         if (!ui->lineEdit->text().isEmpty() &&
             !ui->lineEdit_2->text().isEmpty() &&
@@ -42,14 +38,16 @@ MainWindow::MainWindow(QWidget *parent)
         }
     };
 
-    std::function<void(size_t, size_t)> updateProgress = [this](size_t val, size_t total) {
-        ui->progressBar->setValue((total > 0 ? val * 100 / total : 100));
+    std::function<void(size_t, size_t)> updateProgress = [this](size_t val, size_t total)
+    {
+        ui->progressBar->setValue(total > 0 ? val * 100 / total : 100);
     };
 
     connect(ui->lineEdit, &QLineEdit::textChanged, this, onLinesButtonEnabler);
     connect(ui->lineEdit_2, &QLineEdit::textChanged, this, onLinesButtonEnabler);
 
-    connect(ui->lineEdit, &QLineEdit::textChanged, this, [this] {
+    connect(ui->lineEdit, &QLineEdit::textChanged, this, [this]
+    {
         QString path = ui->lineEdit->text();
         QPalette *palette = new QPalette();
         if (QDir(path).exists() || QFile(path).exists()) {
@@ -60,7 +58,8 @@ MainWindow::MainWindow(QWidget *parent)
         ui->lineEdit->setPalette(*palette);
     });
 
-    connect(ui->pushButton, &QPushButton::clicked, this, [this] {
+    connect(ui->pushButton, &QPushButton::clicked, this, [this]
+    {
         QString path = ui->lineEdit->text();
         QString text = ui->lineEdit_2->text();
 
