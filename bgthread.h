@@ -32,12 +32,12 @@ public:
 signals:
     void ProgressChanged(); // integer percentage changed
 
-    void ResultChanged();
+    void ResultChanged(); // new item found
 
 private:
     void FindWork(QString filePath, NGrepInfo::TOptions copyOptions);
 
-    void Refresh();
+    void Refresh(); // invoke both signals
 
     void SignalProgress();
 
@@ -51,14 +51,14 @@ private:
     mutable std::mutex Mutex;
 
     NGrepInfo::TOptions Options;
-    NGrepInfo::TResult CurResult;
+    NGrepInfo::TResult CurResult; // shared_ptr with locking setters getters?
 
     bool NewTask; // have new grep task
     bool Quit; // delete bgthread
-    bool CallProgress;
-    bool CallResult;
+    bool CallProgress; // queue progress signal
+    bool CallResult; // queue result signal
 
-    size_t ProgressModulo;
+    size_t ProgressModulo; // criteria for progress signal
 
     std::atomic<bool> Cancel; // stop grep task
     std::condition_variable CV;

@@ -10,7 +10,8 @@ BgThread::BgThread()
     , Thread([this] {
         while (true) {
             std::unique_lock<std::mutex> lg(Mutex);
-            CV.wait(lg, [this] {
+            CV.wait(lg, [this]
+            {
                 return Quit || NewTask;
             });
 

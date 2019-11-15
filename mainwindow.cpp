@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->progressBar->setVisible(false);
     ui->label->setVisible(false);
 
-    std::function<void()> onLinesButtonEnabler = [this]()
+    std::function<void()> onLinesButtonEnabler = [this]
     {
         if (ui->lineEdit->text().isEmpty() ||
             ui->lineEdit_2->text().isEmpty())
@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     };
 
-    std::function<void()> onFinishButtonEnabler = [this]()
+    std::function<void()> onFinishButtonEnabler = [this]
     {
         ui->pushButton_2->setEnabled(false);
         if (!ui->lineEdit->text().isEmpty() &&
@@ -81,7 +81,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_2, &QPushButton::clicked, this, [this, onFinishButtonEnabler]
     {
         bg_thread.Stop();
-
         onFinishButtonEnabler();
     });
 
