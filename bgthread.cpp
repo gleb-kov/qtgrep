@@ -8,7 +8,7 @@ BgThread::BgThread()
     , ProgressModulo(0)
     , Cancel(false)
     , Thread([this] {
-        while(true) {
+        while (true) {
             std::unique_lock<std::mutex> lg(Mutex);
             CV.wait(lg, [this] {
                 return Quit || NewTask;
@@ -59,6 +59,11 @@ BgThread::BgThread()
     })
 {}
 
+NGrepInfo::TResult BgThread::GetResult() const {
+    std::unique_lock<std::mutex> lg(Mutex);
+    return CurResult;
+}
+
 void BgThread::SetTask(NGrepInfo::TOptions options) {
     std::unique_lock<std::mutex> lg(Mutex);
     this->Options = options;
@@ -67,11 +72,6 @@ void BgThread::SetTask(NGrepInfo::TOptions options) {
         this->Options.Substring = this->Options.Substring.toLower();
     }
     CV.notify_all();
-}
-
-NGrepInfo::TResult BgThread::GetResult() const {
-    std::unique_lock<std::mutex> lg(Mutex);
-    return CurResult;
 }
 
 void BgThread::Stop() {
@@ -143,6 +143,11 @@ void BgThread::FindWork(QString filePath, NGrepInfo::TOptions copyOptions) {
     }
 }
 
+void BgThread::Refresh() {
+    QueueSignalProgress();
+    QueueSignalResult();
+}
+
 void BgThread::SignalProgress() {
     {
         std::unique_lock<std::mutex> lg(Mutex);
@@ -175,9 +180,4 @@ void BgThread::QueueSignalResult() {
     CallResult = true;
     QMetaObject::invokeMethod(this, &BgThread::SignalResult,
                               Qt::QueuedConnection);
-}
-
-void BgThread::Refresh() {
-    QueueSignalProgress();
-    QueueSignalResult();
 }

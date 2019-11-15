@@ -21,9 +21,9 @@ private:
 public:
     BgThread();
 
-    void SetTask(NGrepInfo::TOptions options);
-
     NGrepInfo::TResult GetResult() const;
+
+    void SetTask(NGrepInfo::TOptions options);
 
     void Stop();
 
@@ -37,6 +37,8 @@ signals:
 private:
     void FindWork(QString filePath, NGrepInfo::TOptions copyOptions);
 
+    void Refresh();
+
     void SignalProgress();
 
     void SignalResult();
@@ -44,8 +46,6 @@ private:
     void QueueSignalProgress();
 
     void QueueSignalResult();
-
-    void Refresh();
 
 private:
     mutable std::mutex Mutex;

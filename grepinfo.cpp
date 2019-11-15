@@ -7,19 +7,19 @@ NGrepInfo::TResult::TResult()
     , FilesNumber(0)
 {}
 
-size_t NGrepInfo::TResult::Shown() {
+size_t NGrepInfo::TResult::Shown() const {
     return Filename.size();
 }
 
-size_t NGrepInfo::TResult::Checked() {
+size_t NGrepInfo::TResult::Checked() const {
     return Progress;
 }
 
-size_t NGrepInfo::TResult::TotalFiles() {
+size_t NGrepInfo::TResult::TotalFiles() const {
     return FilesNumber;
 }
 
-size_t NGrepInfo::TResult::TotalItems() {
+size_t NGrepInfo::TResult::TotalItems() const {
     return Items;
 }
 
