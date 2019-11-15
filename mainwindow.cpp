@@ -78,23 +78,20 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pushButton_2->setEnabled(true);
     });
 
-    connect(ui->pushButton_2, &QPushButton::clicked, this,
-            [this, onFinishButtonEnabler]
+    connect(ui->pushButton_2, &QPushButton::clicked, this, [this, onFinishButtonEnabler]
     {
         bg_thread.Stop();
 
         onFinishButtonEnabler();
     });
 
-    connect(&bg_thread, &BgThread::ProgressChanged, this,
-            [this, updateProgress]
+    connect(&bg_thread, &BgThread::ProgressChanged, this, [this, updateProgress]
     {
         NGrepInfo::TResult res = bg_thread.GetResult();
         updateProgress(res.Checked(), res.TotalFiles());
     });
 
-    connect(&bg_thread, &BgThread::ResultChanged, this,
-            [this, onFinishButtonEnabler]
+    connect(&bg_thread, &BgThread::ResultChanged, this, [this, onFinishButtonEnabler]
     {
         NGrepInfo::TResult res = bg_thread.GetResult();
 
