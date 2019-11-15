@@ -4,14 +4,9 @@
 /*
  * TODO:
  * const, &, &&, emplace_back + (always copy tresult in getresult())
- * KMP-algorithm ?
- *
  * tests
  *
- * put in tresult is it near-mod
- * bold name of file on near-mod
- * dont update listwidget every time
- * layout
+ * update progressbar even nothing found
  */
 
 MainWindow::MainWindow(QWidget *parent)
@@ -78,8 +73,14 @@ MainWindow::MainWindow(QWidget *parent)
 
         bg_thread.SetTask(opt);
 
+        ui->listWidget->clear();
+
         ui->progressBar->setValue(0);
         ui->progressBar->setVisible(true);
+
+        ui->label->setVisible(true);
+        ui->label->setText("Results: 0");
+
         ui->pushButton->setEnabled(false);
         ui->pushButton_2->setEnabled(true);
     });
@@ -97,9 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         NGrepInfo::TResult res = bg_thread.GetResult();
 
-        ui->listWidget->clear();
-
-        for (size_t i = 0; i < res.Shown(); i++) {
+        for (size_t i = ui->listWidget->count(); i < res.Shown(); i++) {
             QString text;
             text = res.Filename[i];
             text += QString(":%1").arg(res.Lines[i]);
@@ -115,7 +114,6 @@ MainWindow::MainWindow(QWidget *parent)
         }
 
         updateProgress(res.Checked(), res.TotalFiles());
-        ui->label->setVisible(true);
         ui->label->setText(QString("Results: %1").arg(res.TotalItems()));
     });
 }
